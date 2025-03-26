@@ -44,16 +44,44 @@ export default function ContactSection() {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
-    // In a real application, we would send the form data to a server
-    console.log("Form submitted:", data);
-    
-    toast({
-      title: "Request submitted",
-      description: "We'll get back to you soon!",
-    });
-    
-    form.reset();
+  const onSubmit = async (data: FormValues) => {
+    try {
+      console.log("Form submitted:", data);
+      
+      // First try the Vercel API endpoint if deployed there
+      const apiEndpoint = '/api/contact';
+      
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Request submitted",
+          description: "We'll get back to you soon!",
+        });
+        
+        form.reset();
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Error",
+          description: errorData.message || "There was a problem submitting your request. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Submission error",
+        description: "There was a problem submitting your request. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const contactInfo = [
