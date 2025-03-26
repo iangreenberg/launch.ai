@@ -24,11 +24,15 @@
       ]
     }
   ],
+  "rewrites": [
+    { "source": "/api", "destination": "/api/index" },
+    { "source": "/api/health", "destination": "/api/health" },
+    { "source": "/api/contact", "destination": "/api/contact" },
+    { "source": "/(.*)", "destination": "/public/$1" }
+  ],
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/api", "dest": "/api/index.js" },
-    { "src": "/api/health", "dest": "/api/health.js" },
-    { "src": "/api/contact", "dest": "/api/contact.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/api/(.*)", "dest": "/api/$1.js" },
+    { "src": "^(?!.*[.][a-zA-Z0-9]{2,4}$)(?!.*^/api/)(?!.*^/public/).*$", "dest": "/public/index.html" }
   ]
 }
