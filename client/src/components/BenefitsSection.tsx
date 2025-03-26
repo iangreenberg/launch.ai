@@ -5,7 +5,7 @@ import {
   Users, 
   Lightbulb, 
   DollarSign, 
-  ArrowsOutCardinal 
+  ArrowUpDown 
 } from "lucide-react";
 
 export default function BenefitsSection() {
@@ -36,7 +36,7 @@ export default function BenefitsSection() {
       description: "Optimize resources and reduce operational costs through intelligent automation."
     },
     {
-      icon: ArrowsOutCardinal,
+      icon: ArrowUpDown,
       title: "Scalable Solutions",
       description: "Our AI systems grow with your business, providing consistent value as you expand."
     }

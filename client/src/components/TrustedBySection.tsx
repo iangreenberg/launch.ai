@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { FaGoogle, FaMicrosoft, FaAmazon, FaSlack, FaSalesforce, FaAdobe } from "react-icons/fa";
+import { FaGoogle, FaMicrosoft, FaAmazon, FaSlack, FaSalesforce } from "react-icons/fa";
+import { SiAdobe } from "react-icons/si";
 
 export default function TrustedBySection() {
   const container = {
@@ -24,7 +25,7 @@ export default function TrustedBySection() {
     { icon: FaAmazon, name: "Amazon" },
     { icon: FaSlack, name: "Slack" },
     { icon: FaSalesforce, name: "Salesforce" },
-    { icon: FaAdobe, name: "Adobe" },
+    { icon: SiAdobe, name: "Adobe" },
   ];
 
   return (
