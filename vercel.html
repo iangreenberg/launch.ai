@@ -3,392 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Launch.ai - Vercel Deployment Verification">
-  <title>Launch.ai | Vercel Deployment Verification</title>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Launch.ai - AI Solutions</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <!-- Pre-connect to Google Fonts to improve loading performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <style>
-    :root {
-      --primary: #ff6b35;
-      --primary-hover: #e55a29;
-      --success-bg: #ecfdf5;
-      --success-border: #10b981;
-      --error-bg: #fef2f2;
-      --error-border: #ef4444;
-      --neutral-bg: #f9fafb;
-      --neutral-border: #d1d5db;
-    }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
+    /* Essential styles for the loading state */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       margin: 0;
-      padding: 40px 20px;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f8f9fa;
+      color: #1a1a1a;
+    }
+    
+    #root {
       min-height: 100vh;
-      color: #1f2937;
-    }
-    
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
-    }
-    
-    header {
-      margin-bottom: 40px;
-      text-align: center;
-    }
-    
-    h1 {
-      color: var(--primary);
-      font-size: 2.2rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    h2 {
-      font-size: 1.5rem;
-      margin: 1.5rem 0 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    
-    .logo {
-      font-weight: 800;
-      font-size: 2.5rem;
-      letter-spacing: -0.05em;
-      color: var(--primary);
-    }
-    
-    .description {
-      color: #4b5563;
-      margin-bottom: 2rem;
-      font-size: 1.1rem;
-    }
-    
-    .card {
-      background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      margin-bottom: 20px;
-      border: 1px solid #e5e7eb;
-    }
-    
-    .card-title {
       display: flex;
+      flex-direction: column;
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 15px;
-    }
-    
-    .status {
-      margin: 15px 0;
-      padding: 15px;
-      border-radius: 6px;
-      font-size: 0.95rem;
-    }
-    
-    .success {
-      background-color: var(--success-bg);
-      border: 1px solid var(--success-border);
-    }
-    
-    .error {
-      background-color: var(--error-bg);
-      border: 1px solid var(--error-border);
-    }
-    
-    .neutral {
-      background-color: var(--neutral-bg);
-      border: 1px solid var(--neutral-border);
-    }
-    
-    .button {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
-    
-    .button:hover {
-      background-color: var(--primary-hover);
-    }
-    
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    
-    .endpoint-list {
-      margin: 20px 0;
-    }
-    
-    .endpoint-item {
-      padding: 12px;
-      border-radius: 6px;
-      background-color: #f9fafb;
-      margin-bottom: 10px;
-      border-left: 3px solid var(--primary);
-    }
-    
-    .endpoint-url {
-      font-family: monospace;
-      font-weight: 600;
-    }
-    
-    .endpoint-description {
-      margin-top: 5px;
-      font-size: 0.9rem;
-      color: #6b7280;
-    }
-    
-    pre {
-      background-color: #f9fafb;
-      padding: 15px;
-      border-radius: 6px;
-      overflow-x: auto;
-      font-family: monospace;
-      font-size: 0.9rem;
-      margin: 10px 0;
-    }
-    
-    .check-list {
-      margin: 20px 0;
-    }
-    
-    .check-item {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 10px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    
-    .check-item:last-child {
-      border-bottom: none;
-    }
-    
-    .check-icon {
-      margin-right: 10px;
-      color: #10b981;
-      font-size: 1.2rem;
-    }
-    
-    .check-content {
-      flex: 1;
-    }
-    
-    .check-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    
-    .check-description {
-      font-size: 0.9rem;
-      color: #6b7280;
-    }
-    
-    footer {
-      margin-top: 40px;
+      justify-content: center;
+      height: 100vh;
       text-align: center;
-      color: #6b7280;
-      font-size: 0.9rem;
+    }
+    
+    .loading-container img {
+      max-width: 200px;
+      margin-bottom: 20px;
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 107, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: #ff6b00;
+      animation: spin 1s ease infinite;
+    }
+    
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    
+    .loading-text {
+      margin-top: 20px;
+      font-weight: 500;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="logo">Launch.ai</div>
-      <h1>Vercel Deployment Verification</h1>
-      <p class="description">This page verifies that your Vercel deployment is functioning correctly.</p>
-    </header>
-    
-    <div class="card">
-      <div class="card-title">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        API Status Check
-      </div>
-      <div id="apiStatus" class="status neutral">Checking API status...</div>
-      
-      <div class="endpoint-list">
-        <h3>Available Endpoints</h3>
-        <div class="endpoint-item">
-          <div class="endpoint-url">GET /api</div>
-          <div class="endpoint-description">Base API endpoint that returns API information</div>
-        </div>
-        <div class="endpoint-item">
-          <div class="endpoint-url">GET /api/health</div>
-          <div class="endpoint-description">Health check endpoint that returns environment details</div>
-        </div>
-        <div class="endpoint-item">
-          <div class="endpoint-url">POST /api/contact</div>
-          <div class="endpoint-description">Endpoint for contact form submissions</div>
-        </div>
-      </div>
-      
-      <div id="apiResponse" style="display:none;">
-        <h3>Response Data</h3>
-        <pre id="responseJson"></pre>
-      </div>
-      
-      <div class="button-group">
-        <button class="button" onclick="checkApiStatus('/api')">Check API Status</button>
-        <button class="button" onclick="checkApiStatus('/api/health')">Check Health</button>
-      </div>
+  <div id="root">
+    <!-- Loading state that will show until React loads -->
+    <div class="loading-container">
+      <h1>Launch.ai</h1>
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading AI Solutions...</div>
     </div>
-    
-    <div class="card">
-      <div class="card-title">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-          <polyline points="22 4 12 14.01 9 11.01"/>
-        </svg>
-        Deployment Status
-      </div>
-      
-      <div class="check-list">
-        <div class="check-item">
-          <div id="static-check" class="check-icon">✓</div>
-          <div class="check-content">
-            <div class="check-title">Static Asset Serving</div>
-            <div id="static-check-text" class="check-description">HTML, CSS, and JavaScript files are being served correctly</div>
-          </div>
-        </div>
-        <div class="check-item">
-          <div id="api-check" class="check-icon">✓</div>
-          <div class="check-content">
-            <div class="check-title">Serverless Functions</div>
-            <div id="api-check-text" class="check-description">API endpoints are operational and ready to receive requests</div>
-          </div>
-        </div>
-        <div class="check-item">
-          <div id="build-check" class="check-icon">✓</div>
-          <div class="check-content">
-            <div class="check-title">Build Configuration</div>
-            <div id="build-check-text" class="check-description">Vercel build pipeline is correctly configured for this application</div>
-          </div>
-        </div>
-        <div class="check-item">
-          <div id="security-check" class="check-icon">✓</div>
-          <div class="check-content">
-            <div class="check-title">Security Headers</div>
-            <div id="security-check-text" class="check-description">Appropriate security headers are configured for this deployment</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <footer>
-      <p>&copy; 2025 Launch.ai | All Rights Reserved</p>
-    </footer>
   </div>
-
+  
+  <!-- This script will help redirect traffic to the correct built assets -->
   <script>
-    function formatJson(json) {
-      return JSON.stringify(json, null, 2);
-    }
-    
-    function checkApiStatus(endpoint = '/api') {
-      document.getElementById('apiStatus').innerHTML = `Checking ${endpoint} status...`;
-      document.getElementById('apiStatus').className = "status neutral";
-      document.getElementById('apiResponse').style.display = "none";
+    // This helps Vercel properly load the JavaScript bundle
+    window.addEventListener('DOMContentLoaded', function() {
+      // Check if we're running on Vercel production
+      const isVercel = window.location.hostname.includes('vercel.app') || 
+                      window.location.hostname.includes('launch-ai');
+                      
+      // Load the appropriate bundle
+      const script = document.createElement('script');
+      script.type = 'module';
       
-      // Add a random query parameter to prevent caching
-      const cacheBuster = new Date().getTime();
-      const url = `${endpoint}${endpoint.includes('?') ? '&' : '?'}_=${cacheBuster}`;
+      if (isVercel) {
+        // On Vercel, we need to make sure we're loading from the correct path
+        script.src = '/assets/index.js';
+      } else {
+        // Local development
+        script.src = '/src/main.tsx';
+      }
       
-      fetch(url)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`Status code: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          document.getElementById('apiStatus').innerHTML = `
-            <strong>Success! ✓</strong><br>
-            API endpoint ${endpoint} is operational.<br>
-            ${data.message ? `Message: ${data.message}` : ''}
-            ${data.version ? `<br>Version: ${data.version}` : ''}
-            ${data.timestamp ? `<br>Timestamp: ${new Date(data.timestamp).toLocaleString()}` : ''}
-          `;
-          document.getElementById('apiStatus').className = "status success";
-          
-          // Display response data
-          document.getElementById('responseJson').textContent = formatJson(data);
-          document.getElementById('apiResponse').style.display = "block";
-          
-          // Update deployment checks
-          document.getElementById('api-check').innerHTML = '✓';
-          document.getElementById('api-check-text').innerHTML = 'API endpoints are operational and ready to receive requests';
-        })
-        .catch(err => {
-          document.getElementById('apiStatus').innerHTML = `
-            <strong>Error! ✗</strong><br>
-            The request to ${endpoint} failed.<br>
-            ${err.message}
-          `;
-          document.getElementById('apiStatus').className = "status error";
-          
-          // Update deployment checks with error
-          document.getElementById('api-check').innerHTML = '✗';
-          document.getElementById('api-check-text').innerHTML = 'API endpoints are not responding. Verify serverless functions deployment.';
-        });
-    }
-    
-    // Function to check if all deployment components are working
-    function checkAllComponents() {
-      // Check if static assets are loading
-      const isStatic = document.querySelector('style') !== null;
-      document.getElementById('static-check').innerHTML = isStatic ? '✓' : '✗';
-      document.getElementById('static-check-text').innerHTML = isStatic 
-        ? 'HTML, CSS, and JavaScript files are being served correctly' 
-        : 'Static assets failed to load properly';
-      
-      // Check for Vercel environment
-      const isVercelEnv = typeof window !== 'undefined' && (
-        window.location.hostname.includes('vercel.app') || 
-        document.referrer.includes('vercel.app') ||
-        window.location.hostname !== 'localhost'
-      );
-      
-      document.getElementById('build-check').innerHTML = isVercelEnv ? '✓' : '?';
-      document.getElementById('build-check-text').innerHTML = isVercelEnv 
-        ? 'Vercel build pipeline is correctly configured for this application'
-        : 'Cannot verify build configuration (may be in development)';
-      
-      // Check for security headers (best effort)
-      const securityCheck = document.getElementById('security-check');
-      // This is just a simple check - Vercel will add headers automatically
-      securityCheck.innerHTML = '✓';
-      document.getElementById('security-check-text').innerHTML = 'Appropriate security headers are configured for this deployment';
-    }
-
-    // Run checks on page load
-    window.onload = function() {
-      checkApiStatus('/api');
-      checkAllComponents();
-    };
+      document.body.appendChild(script);
+    });
   </script>
 </body>
 </html>

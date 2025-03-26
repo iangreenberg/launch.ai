@@ -40,14 +40,31 @@ if (!fs.existsSync(distPublicDir)) {
 // Create a public index.html that will be served at the root
 const mainIndexPath = path.join(__dirname, 'client', 'index.html');
 const rootIndexPath = path.join(__dirname, 'index.html');
+const vercelHtmlPath = path.join(__dirname, 'vercel.html');
 const distPublicIndexPath = path.join(distPublicDir, 'index.html');
 
-// Make sure we have a proper index.html in the public directory
-if (fs.existsSync(mainIndexPath)) {
+// Check if we have a special vercel.html file for deployment
+if (fs.existsSync(vercelHtmlPath)) {
+  const vercelContent = fs.readFileSync(vercelHtmlPath, 'utf8');
+  console.log('✅ Found vercel.html, using for Vercel deployment');
+  fs.writeFileSync(distPublicIndexPath, vercelContent);
+  console.log('✅ dist/public/index.html created from vercel.html');
+  
+  // Also copy a version to the root for reference
+  fs.writeFileSync(path.join(__dirname, 'dist', 'index.html'), vercelContent);
+  console.log('✅ dist/index.html created from vercel.html');
+} else if (fs.existsSync(mainIndexPath)) {
   const content = fs.readFileSync(mainIndexPath, 'utf8');
   console.log('✅ Found client/index.html, copying to dist/public');
-  fs.writeFileSync(distPublicIndexPath, content);
-  console.log('✅ dist/public/index.html created');
+  
+  // Modify content to use correct paths on Vercel
+  const modifiedContent = content.replace(
+    '<script type="module" src="/src/main.tsx"></script>',
+    '<script type="module" src="/assets/index.js"></script>'
+  );
+  
+  fs.writeFileSync(distPublicIndexPath, modifiedContent);
+  console.log('✅ dist/public/index.html created with modified script paths');
   
   // Also copy to root for compatibility
   fs.writeFileSync(rootIndexPath, content);
@@ -55,8 +72,15 @@ if (fs.existsSync(mainIndexPath)) {
 } else if (fs.existsSync(rootIndexPath)) {
   const content = fs.readFileSync(rootIndexPath, 'utf8');
   console.log('✅ Using root index.html, copying to dist/public');
-  fs.writeFileSync(distPublicIndexPath, content);
-  console.log('✅ dist/public/index.html created');
+  
+  // Modify content to use correct paths on Vercel
+  const modifiedContent = content.replace(
+    '<script type="module" src="/src/main.tsx"></script>',
+    '<script type="module" src="/assets/index.js"></script>'
+  );
+  
+  fs.writeFileSync(distPublicIndexPath, modifiedContent);
+  console.log('✅ dist/public/index.html created with modified script paths');
 } else {
   console.warn('⚠️ No index.html found, creating a basic one');
   const basicHtml = `<!DOCTYPE html>
@@ -88,7 +112,7 @@ if (fs.existsSync(apiDir)) {
   console.log(`📄 API files found: ${apiFiles.join(', ')}`);
   
   // Check if we have all required API files
-  const requiredApiFiles = ['index.ts', 'health.ts', 'contact.ts'];
+  const requiredApiFiles = ['index.ts', 'health.ts', 'contact.ts', 'config.ts'];
   const missingFiles = requiredApiFiles.filter(file => !apiFiles.includes(file));
   
   if (missingFiles.length > 0) {
@@ -159,6 +183,7 @@ if (fs.existsSync(vercelJsonPath)) {
     { "source": "/api", "destination": "/api/index" },
     { "source": "/api/health", "destination": "/api/health" },
     { "source": "/api/contact", "destination": "/api/contact" },
+    { "source": "/api/config", "destination": "/api/config" },
     { "source": "/(.*)", "destination": "/public/$1" }
   ],
   "routes": [
