@@ -31,8 +31,17 @@ This is a modern, responsive website for Launch.ai, showcasing AI solutions for 
    - Build Command: `npm run build`
    - Output Directory: `dist`
    - Install Command: `npm install`
-5. Add any required environment variables.
-6. Click "Deploy".
+5. The deployment will use the configuration in `vercel.json` automatically.
+6. To verify deployment success, visit:
+   - The main site at root URL (`/`)
+   - Deployment verification page at `/vercel.html`
+   - API endpoint at `/api`
+   - API health check at `/api/health`
+
+**Important Notes:**
+- This project uses a hybrid approach with Express for local development and Vercel serverless functions for production deployment.
+- The API endpoints in the `/api` directory are specifically designed for Vercel's serverless function architecture and are used in production.
+- Local development uses the Express server instead, which has routes set up in `server/routes.ts`.
 
 ## API Endpoints
 
