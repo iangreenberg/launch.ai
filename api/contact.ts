@@ -1,39 +1,40 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  // Allow CORS for development purposes
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-
+export default async function handler(request: VercelRequest, response: VercelResponse) {
   // Handle preflight OPTIONS request
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+  if (request.method === 'OPTIONS') {
+    return response.status(200).end();
   }
   
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+  if (request.method !== 'POST') {
+    return response.status(405).json({ 
+      success: false,
+      message: 'Method not allowed' 
+    });
   }
 
   try {
-    const { firstName, lastName, email, company, solution, message } = req.body;
+    const { firstName, lastName, email, company, solution, message } = request.body;
     
     // Validate required fields
     if (!firstName || !lastName || !email || !solution || !message) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return response.status(400).json({ 
+        success: false,
+        message: 'Missing required fields' 
+      });
     }
     
-    // In a real application, we would send an email or save to a database
-    // For now, just return success response
+    // Send success response
+    console.log('Form submission successful:', { firstName, lastName, email, solution });
     
-    return res.status(200).json({ 
+    return response.status(200).json({ 
       success: true, 
       message: 'Contact form submitted successfully' 
     });
   } catch (error) {
     console.error('Error submitting contact form:', error);
-    return res.status(500).json({ 
+    return response.status(500).json({ 
+      success: false,
       message: 'An error occurred while submitting the form' 
     });
   }
