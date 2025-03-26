@@ -1,0 +1,10 @@
+{
+  "name": "launch-ai-api",
+  "version": "1.0.0",
+  "description": "API for Launch.ai",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": ">=18.x"
+  }
+}

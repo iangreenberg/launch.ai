@@ -213,6 +213,49 @@ if (fs.existsSync(apiDir)) {
     fs.copyFileSync(srcFile, destFile);
     console.log(`✅ Copied ${file} to dist/api directory`);
   }
+  
+  // Special handling for _static.js as a fallback
+  const staticJsPath = path.join(apiDir, '_static.js');
+  if (fs.existsSync(staticJsPath)) {
+    console.log('✅ Found _static.js file for fallback HTML generation');
+    
+    // Create a special fallback html for direct inclusion in Vercel build
+    const fallbackHtmlPath = path.join(distPublicDir, 'fallback.html');
+    
+    try {
+      // Import the static HTML generation function
+      const staticModule = await import('./api/_static.js');
+      const htmlContent = staticModule.getStaticHTML();
+      
+      // Write the fallback HTML file
+      fs.writeFileSync(fallbackHtmlPath, htmlContent);
+      console.log('✅ Created fallback.html from _static.js content');
+      
+      // Also create a copy at the root of dist/public/index.html for safer fallback
+      fs.writeFileSync(distPublicIndexPath, htmlContent);
+      console.log('✅ Updated dist/public/index.html with _static.js content');
+    } catch (error) {
+      console.error('❌ Error generating fallback HTML:', error);
+      console.log('⚠️ Falling back to manual HTML template');
+      
+      const basicHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launch.ai - AI Solutions</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/assets/index.js"></script>
+</body>
+</html>`;
+      fs.writeFileSync(fallbackHtmlPath, basicHtml);
+      console.log('✅ Created basic fallback.html');
+    }
+  }
 }
 
 // Create a _redirects file for Vercel (just in case)
