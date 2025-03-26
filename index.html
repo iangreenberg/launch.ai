@@ -3,9 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0;url=/index.html">
-  <title>Launch.ai - Redirecting...</title>
+  <title>Launch.ai | Redefining Business with AI</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.ico">
   <style>
+    :root {
+      --primary: #ff6b35;
+      --primary-hover: #e55a29;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       display: flex;
@@ -14,45 +25,159 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
-      background-color: #f9fafb;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
       color: #1f2937;
     }
+    
     .loader {
       border: 4px solid #e5e7eb;
-      border-top: 4px solid #ff6b35;
+      border-top: 4px solid var(--primary);
       border-radius: 50%;
       width: 40px;
       height: 40px;
       animation: spin 1s linear infinite;
       margin-bottom: 20px;
     }
+    
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    
+    .content {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+    }
+    
     h1 {
       margin-bottom: 16px;
-      color: #ff6b35;
+      color: var(--primary);
+      font-size: 2.2rem;
     }
+    
     p {
       text-align: center;
-      max-width: 400px;
       margin: 0 0 20px 0;
+      color: #4b5563;
+      line-height: 1.5;
     }
-    a {
-      color: #ff6b35;
+    
+    .button {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
       text-decoration: none;
       font-weight: 500;
+      padding: 10px 24px;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+      margin-top: 10px;
     }
-    a:hover {
+    
+    .button:hover {
+      background-color: var(--primary-hover);
+    }
+    
+    .links {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    
+    .text-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    
+    .text-link:hover {
       text-decoration: underline;
+    }
+    
+    .status {
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+    
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #10b981;
+      margin-right: 6px;
     }
   </style>
 </head>
 <body>
-  <div class="loader"></div>
-  <h1>Launch.ai</h1>
-  <p>Please wait while you are redirected to the Launch.ai website...</p>
-  <p>If you are not redirected automatically, <a href="/index.html">click here</a>.</p>
+  <div class="content">
+    <div class="loader" id="loader"></div>
+    <h1>Launch.ai</h1>
+    <p>Welcome to Launch.ai - the intelligent AI solutions platform for modern businesses.</p>
+    <p>We're preparing your experience...</p>
+    
+    <a href="/index.html" class="button" id="enter-button" style="display: none;">Enter Launch.ai</a>
+    
+    <div class="links">
+      <a href="/vercel.html" class="text-link">Check Deployment Status</a>
+      <a href="/" class="text-link">Refresh Page</a>
+    </div>
+    
+    <div class="status">
+      <span class="status-dot"></span>
+      <span id="status-message">Loading application...</span>
+    </div>
+  </div>
+  
+  <script>
+    // Check for Vercel environment and redirect accordingly
+    document.addEventListener('DOMContentLoaded', function() {
+      const enterButton = document.getElementById('enter-button');
+      const loader = document.getElementById('loader');
+      const statusMessage = document.getElementById('status-message');
+      
+      // In production/Vercel, redirect to SPA immediately
+      if (window.location.hostname.includes('vercel.app') || 
+          window.location.hostname === 'launch.ai' || 
+          window.location.hostname.includes('launchai')) {
+        
+        // Redirect after a short delay to ensure page is loaded
+        setTimeout(function() {
+          window.location.href = '/index.html';
+        }, 1500);
+        
+      } else {
+        // In development, show enter button after a short delay
+        setTimeout(function() {
+          loader.style.display = 'none';
+          enterButton.style.display = 'inline-block';
+          statusMessage.textContent = 'Ready to launch!';
+        }, 2000);
+      }
+      
+      // Handle API status check to verify deployment
+      fetch('/api?_=' + new Date().getTime())
+        .then(response => {
+          if (!response.ok) throw new Error('API not available');
+          return response.json();
+        })
+        .then(data => {
+          console.log('API Status:', data);
+          statusMessage.textContent = 'Connected to Launch.ai API v' + (data.version || '1.0.0');
+        })
+        .catch(err => {
+          console.error('API Status Check Error:', err);
+          // Don't change status message on error to avoid confusion
+        });
+    });
+  </script>
 </body>
 </html>
