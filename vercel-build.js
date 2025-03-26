@@ -108,6 +108,37 @@ if (!buildSuccess) {
   console.error('❌ Build failed. Attempting to continue with deployment...');
 }
 
+// Make sure the client files are properly organized for deployment
+const clientDistDir = path.join(__dirname, 'dist', 'client');
+if (fs.existsSync(clientDistDir)) {
+  console.log('🔍 Found dist/client directory, copying contents to dist/public...');
+  // Copy all files from dist/client to dist/public
+  const files = fs.readdirSync(clientDistDir);
+  for (const file of files) {
+    const srcPath = path.join(clientDistDir, file);
+    const destPath = path.join(distPublicDir, file);
+    
+    if (fs.statSync(srcPath).isDirectory()) {
+      // For directories like assets, copy recursively
+      if (!fs.existsSync(destPath)) {
+        fs.mkdirSync(destPath, { recursive: true });
+      }
+      const dirFiles = fs.readdirSync(srcPath);
+      for (const dirFile of dirFiles) {
+        fs.copyFileSync(
+          path.join(srcPath, dirFile),
+          path.join(destPath, dirFile)
+        );
+        console.log(`✅ Copied ${path.join(file, dirFile)} to dist/public`);
+      }
+    } else {
+      // For files, copy directly
+      fs.copyFileSync(srcPath, destPath);
+      console.log(`✅ Copied ${file} to dist/public`);
+    }
+  }
+}
+
 // Add needed files to ensure proper Vercel deployment
 console.log('📝 Adding vercel.json to the project root and dist directory');
 const vercelJsonPath = path.join(__dirname, 'vercel.json');

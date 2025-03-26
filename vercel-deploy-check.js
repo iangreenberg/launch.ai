@@ -40,6 +40,7 @@ const files = [
   { path: 'api/index.ts', required: true },
   { path: 'api/health.ts', required: true },
   { path: 'api/contact.ts', required: true },
+  { path: 'api/config.ts', required: true },
   { path: 'dist/index.js', required: false },
   { path: 'dist/public/index.html', required: false },
   { path: 'dist/vercel.json', required: false }
@@ -244,6 +245,16 @@ console.log('\n🌐 Checking live deployment (this may take a moment)...');
       console.log(`Response: ${apiHealthResult.data}`);
     } catch (err) {
       console.log('❌ Could not reach API health endpoint:',  err.message);
+    }
+    
+    // Check the API config endpoint
+    try {
+      const apiConfigResult = await makeRequest('https://launch-ai-ruby.vercel.app/api/config');
+      console.log(`\nAPI Config Endpoint: Status ${apiConfigResult.statusCode}`);
+      console.log(`Content-Type: ${apiConfigResult.contentType}`);
+      console.log(`Response: ${apiConfigResult.data}`);
+    } catch (err) {
+      console.log('❌ Could not reach API config endpoint:',  err.message);
     }
   } catch (error) {
     console.error('❌ Error checking live deployment:', error.message);

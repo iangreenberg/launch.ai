@@ -24,15 +24,17 @@
       ]
     }
   ],
-  "rewrites": [
-    { "source": "/api", "destination": "/api/index" },
-    { "source": "/api/health", "destination": "/api/health" },
-    { "source": "/api/contact", "destination": "/api/contact" },
-    { "source": "/(.*)", "destination": "/public/$1" }
+  "builds": [
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist/public" } },
+    { "src": "api/*.ts", "use": "@vercel/node" }
   ],
   "routes": [
-    { "handle": "filesystem" },
-    { "src": "/api/(.*)", "dest": "/api/$1.js" },
-    { "src": "^(?!.*[.][a-zA-Z0-9]{2,4}$)(?!.*^/api/)(?!.*^/public/).*$", "dest": "/public/index.html" }
+    { "src": "/api/config", "dest": "/api/config" },
+    { "src": "/api/health", "dest": "/api/health" },
+    { "src": "/api/contact", "dest": "/api/contact" },
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
+    { "src": "/favicon.svg", "dest": "/public/favicon.svg" },
+    { "src": "/(.*)", "dest": "/public/index.html" }
   ]
 }
