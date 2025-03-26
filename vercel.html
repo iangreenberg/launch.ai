@@ -3,78 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Launch.ai - Vercel Deployment</title>
+  <title>Launch.ai - Vercel Deployment Check</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      margin: 0;
-      padding: 20px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
     }
     .container {
+      max-width: 800px;
+      text-align: center;
+      padding: 2rem;
       background-color: white;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      padding: 40px;
-      max-width: 600px;
-      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
     h1 {
-      color: #ff5722;
-      margin-top: 0;
+      color: #ff6b35;
+      margin-bottom: 1rem;
     }
     p {
-      color: #555;
+      margin-bottom: 1.5rem;
       line-height: 1.6;
+      color: #333;
     }
-    .logo {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-      background-color: #ff5722;
-      border-radius: 50%;
+    .status {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: #4caf50;
+      color: white;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .checks {
+      text-align: left;
+      margin-top: 2rem;
+    }
+    .check-item {
+      margin-bottom: 0.75rem;
       display: flex;
       align-items: center;
-      justify-content: center;
     }
-    .logo span {
-      color: white;
-      font-size: 34px;
+    .check-item::before {
+      content: "✓";
+      color: #4caf50;
       font-weight: bold;
-    }
-    .success {
-      color: #4CAF50;
-      font-weight: bold;
-    }
-    .button {
-      display: inline-block;
-      background-color: #ff5722;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 4px;
-      text-decoration: none;
-      font-weight: 500;
-      margin-top: 20px;
-      transition: background-color 0.2s;
-    }
-    .button:hover {
-      background-color: #e64a19;
+      margin-right: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="logo">
-      <span>L</span>
+    <h1>Launch.ai - Vercel Deployment Check</h1>
+    <p>This page confirms that your static assets are being served correctly from Vercel.</p>
+    <div class="status">Deployment Ready</div>
+    
+    <div class="checks">
+      <div class="check-item">Static HTML file is properly served</div>
+      <div class="check-item">CSS styles are rendering correctly</div>
+      <div class="check-item">Vercel configuration is valid</div>
+      <div class="check-item">Build pipeline is working</div>
     </div>
-    <h1>Launch.ai</h1>
-    <p class="success">Successfully deployed on Vercel!</p>
-    <p>Your AI solutions website is now live. Users can now explore your AI products and services, submit contact requests, and learn more about how Launch.ai can help transform their business.</p>
-    <a href="/" class="button">View Website</a>
+    
+    <p style="margin-top: 2rem;">
+      Your main application should be accessible at the root URL. This file is simply a verification that Vercel is correctly set up to serve your application.
+    </p>
   </div>
 </body>
 </html>

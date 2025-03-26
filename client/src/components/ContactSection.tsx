@@ -48,7 +48,7 @@ export default function ContactSection() {
     try {
       console.log("Form submitted:", data);
       
-      // First try the Vercel API endpoint if deployed there
+      // Use the Vercel API endpoint for both development and production
       const apiEndpoint = '/api/contact';
       
       const response = await fetch(apiEndpoint, {
@@ -67,10 +67,17 @@ export default function ContactSection() {
         
         form.reset();
       } else {
-        const errorData = await response.json();
+        let errorMessage = "There was a problem submitting your request. Please try again.";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          console.error("Failed to parse error response:", e);
+        }
+        
         toast({
           title: "Error",
-          description: errorData.message || "There was a problem submitting your request. Please try again.",
+          description: errorMessage,
           variant: "destructive",
         });
       }
@@ -78,7 +85,7 @@ export default function ContactSection() {
       console.error("Error submitting form:", error);
       toast({
         title: "Submission error",
-        description: "There was a problem submitting your request. Please try again.",
+        description: "There was a problem connecting to our servers. Please try again later.",
         variant: "destructive",
       });
     }
