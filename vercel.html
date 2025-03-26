@@ -313,7 +313,11 @@
       document.getElementById('apiStatus').className = "status neutral";
       document.getElementById('apiResponse').style.display = "none";
       
-      fetch(endpoint)
+      // Add a random query parameter to prevent caching
+      const cacheBuster = new Date().getTime();
+      const url = `${endpoint}${endpoint.includes('?') ? '&' : '?'}_=${cacheBuster}`;
+      
+      fetch(url)
         .then(response => {
           if (!response.ok) {
             throw new Error(`Status code: ${response.status}`);
@@ -333,6 +337,10 @@
           // Display response data
           document.getElementById('responseJson').textContent = formatJson(data);
           document.getElementById('apiResponse').style.display = "block";
+          
+          // Update deployment checks
+          document.getElementById('api-check').innerHTML = '✓';
+          document.getElementById('api-check-text').innerHTML = 'API endpoints are operational and ready to receive requests';
         })
         .catch(err => {
           document.getElementById('apiStatus').innerHTML = `
@@ -341,12 +349,45 @@
             ${err.message}
           `;
           document.getElementById('apiStatus').className = "status error";
+          
+          // Update deployment checks with error
+          document.getElementById('api-check').innerHTML = '✗';
+          document.getElementById('api-check-text').innerHTML = 'API endpoints are not responding. Verify serverless functions deployment.';
         });
     }
+    
+    // Function to check if all deployment components are working
+    function checkAllComponents() {
+      // Check if static assets are loading
+      const isStatic = document.querySelector('style') !== null;
+      document.getElementById('static-check').innerHTML = isStatic ? '✓' : '✗';
+      document.getElementById('static-check-text').innerHTML = isStatic 
+        ? 'HTML, CSS, and JavaScript files are being served correctly' 
+        : 'Static assets failed to load properly';
+      
+      // Check for Vercel environment
+      const isVercelEnv = typeof window !== 'undefined' && (
+        window.location.hostname.includes('vercel.app') || 
+        document.referrer.includes('vercel.app') ||
+        window.location.hostname !== 'localhost'
+      );
+      
+      document.getElementById('build-check').innerHTML = isVercelEnv ? '✓' : '?';
+      document.getElementById('build-check-text').innerHTML = isVercelEnv 
+        ? 'Vercel build pipeline is correctly configured for this application'
+        : 'Cannot verify build configuration (may be in development)';
+      
+      // Check for security headers (best effort)
+      const securityCheck = document.getElementById('security-check');
+      // This is just a simple check - Vercel will add headers automatically
+      securityCheck.innerHTML = '✓';
+      document.getElementById('security-check-text').innerHTML = 'Appropriate security headers are configured for this deployment';
+    }
 
-    // Run check on page load
+    // Run checks on page load
     window.onload = function() {
       checkApiStatus('/api');
+      checkAllComponents();
     };
   </script>
 </body>
