@@ -100,7 +100,17 @@ export default function Footer() {
         </div>
         
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 mb-4 md:mb-0">&copy; {new Date().getFullYear()} Launch.ai. All rights reserved.</p>
+          <div className="flex flex-col md:flex-row items-center">
+            <p className="text-gray-400 mb-2 md:mb-0 md:mr-4">&copy; {new Date().getFullYear()} Launch.ai. All rights reserved.</p>
+            <a 
+              href="/vercel.html" 
+              className="text-xs px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded-full text-gray-400 hover:text-white transition-colors mb-4 md:mb-0"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Deployment Status
+            </a>
+          </div>
           <div className="flex space-x-6">
             <a href="#" className="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
             <a href="#" className="text-gray-400 hover:text-white transition duration-300">Terms of Service</a>
