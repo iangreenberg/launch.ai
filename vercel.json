@@ -23,13 +23,11 @@
       ]
     }
   ],
-  "rewrites": [
-    { "source": "/api", "destination": "/api/index" },
-    { "source": "/api/health", "destination": "/api/health" },
-    { "source": "/api/contact", "destination": "/api/contact" }
-  ],
   "routes": [
     { "handle": "filesystem" },
+    { "src": "/api", "dest": "/api/index" },
+    { "src": "/api/health", "dest": "/api/health" },
+    { "src": "/api/contact", "dest": "/api/contact" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
