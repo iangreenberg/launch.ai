@@ -1,29 +1,4 @@
-// Enhanced static HTML generator with fallbacks for Vercel deployment
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Get the directory name (accounting for ESM and CJS environments)
-let __dirname;
-try {
-  const __filename = fileURLToPath(import.meta.url);
-  __dirname = path.dirname(__filename);
-} catch (error) {
-  // Fallback for CommonJS environments
-  __dirname = path.dirname(new URL(import.meta.url).pathname);
-}
-
-// Custom paths for checking HTML files
-const possibleHtmlPaths = [
-  path.join(__dirname, '..', 'vercel.html'),
-  path.join(__dirname, '..', 'dist', 'public', 'index.html'),
-  path.join(__dirname, '..', 'dist', 'index.html'),
-  path.join(__dirname, '..', 'client', 'index.html'),
-  path.join(__dirname, '..', 'index.html')
-];
-
-// Main HTML template with the correct script loading path for Vercel
-const htmlTemplate = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -136,54 +111,4 @@ const htmlTemplate = `<!DOCTYPE html>
   
   <script type="module" src="/assets/index.js"></script>
 </body>
-</html>`;
-
-// Try to read HTML from file system
-function tryReadHtmlFromFiles() {
-  for (const htmlPath of possibleHtmlPaths) {
-    try {
-      if (fs.existsSync(htmlPath)) {
-        console.log(`Reading HTML from ${htmlPath}`);
-        const content = fs.readFileSync(htmlPath, 'utf8');
-        
-        // Patch the script path if needed for Vercel
-        if (content.includes('src="/src/main.tsx"')) {
-          return content.replace(
-            '<script type="module" src="/src/main.tsx"></script>',
-            '<script type="module" src="/assets/index.js"></script>'
-          );
-        }
-        
-        return content;
-      }
-    } catch (error) {
-      console.error(`Error reading ${htmlPath}:`, error);
-      // Continue to the next file
-    }
-  }
-  
-  // No files found or readable
-  return null;
-}
-
-// Public function to get HTML content
-export function getStaticHTML() {
-  // First try to read from files
-  const fileHtml = tryReadHtmlFromFiles();
-  if (fileHtml) {
-    return fileHtml;
-  }
-  
-  // Fall back to the template
-  console.log('Using fallback HTML template');
-  return htmlTemplate;
-}
-
-// For direct imports
-export default { getStaticHTML };
-
-// For CommonJS compatibility
-module.exports = {
-  getStaticHTML,
-  default: { getStaticHTML }
-};
+</html>
