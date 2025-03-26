@@ -1,253 +1,259 @@
-// Vercel deployment verification script
-// This script checks the environment and configuration for Vercel deployment
-
+// This script checks for Vercel deployment issues and provides diagnostic information
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
+import https from 'https';
 
 // Get the directory name
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log('🔍 Launch.ai Vercel Deployment Checker');
-console.log('=====================================');
+console.log('🔍 Running enhanced Vercel deployment diagnostic checks...');
 
-// Check environment
-const isVercel = process.env.VERCEL === '1';
-const vercelEnv = process.env.VERCEL_ENV || 'development';
-console.log(`Environment: ${isVercel ? `Vercel (${vercelEnv})` : 'Local/Dev'}`);
-console.log(`Node Version: ${process.version}`);
+// Function to make an HTTP request
+function makeRequest(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        resolve({
+          statusCode: res.statusCode,
+          contentType: res.headers['content-type'],
+          data: data.substring(0, 200) + '...' // Show just the first 200 chars
+        });
+      });
+    }).on('error', (err) => {
+      reject(err);
+    });
+  });
+}
 
-// Track issues
-const issues = [];
-const warnings = [];
-
-// Check critical files
-const criticalFiles = [
-  { path: 'index.html', name: 'Root index.html' },
-  { path: 'client/index.html', name: 'Client index.html' },
-  { path: 'vercel.json', name: 'Vercel config' },
-  { path: 'api/index.ts', name: 'API root handler' },
-  { path: 'api/health.ts', name: 'API health handler' },
-  { path: 'api/contact.ts', name: 'API contact handler' },
-  { path: 'server/routes.ts', name: 'Server routes' },
-  { path: 'client/src/main.tsx', name: 'Client entry point' },
-  { path: 'client/src/App.tsx', name: 'Client app component' },
-  { path: 'client/src/lib/queryClient.ts', name: 'API client utility' }
+// Check for critical files in the expected locations
+const files = [
+  { path: 'vercel.json', required: true },
+  { path: 'index.html', required: true },
+  { path: 'client/index.html', required: true },
+  { path: 'api/index.ts', required: true },
+  { path: 'api/health.ts', required: true },
+  { path: 'api/contact.ts', required: true },
+  { path: 'dist/index.js', required: false },
+  { path: 'dist/public/index.html', required: false },
+  { path: 'dist/vercel.json', required: false }
 ];
 
-console.log('\n📋 Checking critical files:');
-for (const file of criticalFiles) {
+console.log('\n📁 File Structure Checks:');
+// Check for each file and print status
+files.forEach(file => {
   const filePath = path.join(__dirname, file.path);
-  if (fs.existsSync(filePath)) {
-    console.log(`✅ ${file.name} exists`);
-    
-    // Special checks for certain files
-    if (file.path === 'index.html') {
-      const content = fs.readFileSync(filePath, 'utf8');
-      if (content.includes('src="/client/src/main.tsx"')) {
-        console.log(`⚠️ ${file.name} has incorrect entry point path`);
-        issues.push(`${file.name} has incorrect entry point path (should be src="/src/main.tsx")`);
-      }
-    }
-    
-    if (file.path === 'vercel.json') {
-      try {
-        const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        
-        // Check routes order
-        if (content.routes && content.routes.length > 0) {
-          const firstRoute = content.routes[0];
-          if (firstRoute.handle !== 'filesystem') {
-            console.log(`⚠️ ${file.name} has incorrect routes order`);
-            issues.push(`${file.name} has incorrect routes order (filesystem handler should be first)`);
-          }
-          
-          // Check API routes
-          const apiRoutes = content.routes.filter(r => r.src && r.src.startsWith('/api'));
-          if (apiRoutes.length < 3) {
-            console.log(`⚠️ ${file.name} may be missing API routes`);
-            warnings.push(`${file.name} may be missing API routes for /api, /api/health, and /api/contact`);
-          }
-          
-          // Check catch-all route
-          const catchAllRoute = content.routes.find(r => r.src === '/(.*)'  || r.src === '(.*)');
-          if (!catchAllRoute) {
-            console.log(`⚠️ ${file.name} is missing catch-all route`);
-            issues.push(`${file.name} is missing catch-all route to redirect to index.html`);
-          } else if (catchAllRoute.dest !== '/index.html') {
-            console.log(`⚠️ ${file.name} has incorrect catch-all route destination`);
-            issues.push(`${file.name} catch-all route should redirect to /index.html`);
-          }
-        }
-        
-        // Check headers
-        if (!content.headers) {
-          console.log(`⚠️ ${file.name} is missing headers configuration`);
-          warnings.push(`${file.name} is missing headers configuration which may cause CORS issues`);
-        } else {
-          const corsHeaders = content.headers.find(h => 
-            h.headers && h.headers.some(header => 
-              header.key && header.key.includes('Access-Control-Allow')
-            )
-          );
-          
-          if (!corsHeaders) {
-            console.log(`⚠️ ${file.name} may be missing CORS headers`);
-            warnings.push(`${file.name} may be missing CORS headers which could cause API access issues`);
-          }
-        }
-      } catch (e) {
-        console.log(`⚠️ ${file.name} has invalid JSON`);
-        issues.push(`${file.name} has invalid JSON: ${e.message}`);
-      }
-    }
-    
-    // Check queryClient.ts for proper URL handling
-    if (file.path === 'client/src/lib/queryClient.ts') {
-      const content = fs.readFileSync(filePath, 'utf8');
-      if (!content.includes('getFullApiUrl') && !content.includes('window.location.origin')) {
-        console.log(`⚠️ ${file.name} may be missing URL handling for production deployment`);
-        issues.push(`${file.name} should handle API URLs for both development and production environments`);
-      }
-    }
-  } else {
-    console.log(`❌ ${file.name} is missing`);
-    issues.push(`${file.name} is missing`);
-  }
-}
-
-// Check API configurations
-console.log('\n📡 Checking API configurations:');
-const apiDir = path.join(__dirname, 'api');
-if (fs.existsSync(apiDir)) {
-  console.log('✅ API directory exists');
+  const exists = fs.existsSync(filePath);
+  const status = exists ? '✅' : file.required ? '❌' : '⚠️';
+  console.log(`${status} ${file.path}: ${exists ? 'exists' : 'missing'}`);
   
-  // Check each API file
-  const apiFiles = ['index.ts', 'health.ts', 'contact.ts'];
-  for (const file of apiFiles) {
-    const filePath = path.join(apiDir, file);
-    if (fs.existsSync(filePath)) {
-      console.log(`✅ API ${file} exists`);
-      
-      // Check for proper imports and handling
-      const content = fs.readFileSync(filePath, 'utf8');
-      if (!content.includes('@vercel/node')) {
-        console.log(`⚠️ API ${file} is missing Vercel imports`);
-        issues.push(`API ${file} is missing Vercel imports`);
+  // For HTML files, check if they have the correct content
+  if (exists && file.path.endsWith('.html')) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const hasRootDiv = content.includes('<div id="root"></div>');
+    const hasScriptTag = content.includes('<script type="module" src=');
+    console.log(`  - ${hasRootDiv ? '✅' : '❌'} Has root div: ${hasRootDiv}`);
+    console.log(`  - ${hasScriptTag ? '✅' : '❌'} Has script tag: ${hasScriptTag}`);
+    
+    // Show entry point path
+    if (hasScriptTag) {
+      const match = content.match(/<script type="module" src="([^"]+)"/);
+      if (match) {
+        console.log(`  - Entry point: ${match[1]}`);
       }
+    }
+  }
+  
+  // For vercel.json, do a quick validation
+  if (exists && file.path.endsWith('vercel.json')) {
+    try {
+      const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      console.log(`  - Has routes: ${content.routes ? '✅' : '❌'}`);
+      console.log(`  - Has rewrites: ${content.rewrites ? '✅' : '❌'}`);
+    } catch (err) {
+      console.log(`  - ❌ Invalid JSON: ${err.message}`);
+    }
+  }
+});
+
+// Check vercel.json configuration
+const vercelJsonPath = path.join(__dirname, 'vercel.json');
+if (fs.existsSync(vercelJsonPath)) {
+  try {
+    const vercelConfig = JSON.parse(fs.readFileSync(vercelJsonPath, 'utf8'));
+    
+    console.log('\n📄 Vercel Configuration:');
+    console.log(`- Version: ${vercelConfig.version}`);
+    console.log(`- Build Command: ${vercelConfig.buildCommand}`);
+    console.log(`- Output Directory: ${vercelConfig.outputDirectory}`);
+    
+    // Check routes configuration
+    if (vercelConfig.routes && vercelConfig.routes.length > 0) {
+      console.log(`- Routes: ${vercelConfig.routes.length} defined`);
       
-      if (!content.includes('Access-Control-Allow-Origin')) {
-        console.log(`⚠️ API ${file} might be missing CORS headers`);
-        issues.push(`API ${file} might be missing CORS headers`);
-      }
+      // Check for catch-all route
+      const hasCatchAll = vercelConfig.routes.some(route => 
+        route.src && (route.src.includes('(.*)') || route.src.includes('/*'))
+      );
       
-      // Check for OPTIONS handling
-      if (!content.includes('OPTIONS') && !content.includes('preflight')) {
-        console.log(`⚠️ API ${file} might not handle OPTIONS/preflight requests`);
-        warnings.push(`API ${file} might not properly handle OPTIONS/preflight requests`);
-      }
+      console.log(`  ${hasCatchAll ? '✅' : '❌'} Catch-all route: ${hasCatchAll ? 'found' : 'missing'}`);
       
-      // Check for error handling
-      if (!content.includes('try') && !content.includes('catch')) {
-        console.log(`⚠️ API ${file} might be missing error handling`);
-        warnings.push(`API ${file} might be missing proper error handling`);
-      }
+      // Print all routes for debugging
+      console.log('  Route definitions:');
+      vercelConfig.routes.forEach((route, i) => {
+        console.log(`  ${i+1}. ${JSON.stringify(route)}`);
+      });
     } else {
-      console.log(`❌ API ${file} is missing`);
-      issues.push(`API ${file} is missing`);
+      console.log('❌ Routes: None defined');
     }
-  }
-} else {
-  console.log('❌ API directory is missing');
-  issues.push('API directory is missing');
-}
-
-// Check client components for API usage
-console.log('\n🖥️ Checking client components:');
-const clientDir = path.join(__dirname, 'client', 'src', 'components');
-if (fs.existsSync(clientDir)) {
-  console.log('✅ Client components directory exists');
-  
-  // Check contact form component
-  const contactComponent = path.join(clientDir, 'ContactSection.tsx');
-  if (fs.existsSync(contactComponent)) {
-    console.log('✅ Contact form component exists');
     
-    const content = fs.readFileSync(contactComponent, 'utf8');
-    if (!content.includes('apiRequest') && !content.match(/fetch\s*\(\s*['"]\/api\/contact/)) {
-      console.log('⚠️ Contact form component might not be using correct API client');
-      warnings.push('Contact form component should use apiRequest from queryClient.ts');
-    }
-  } else {
-    console.log('❓ Contact form component not found at expected path');
-    warnings.push('Contact form component not found at expected path');
-  }
-} else {
-  console.log('❌ Client components directory is missing');
-  issues.push('Client components directory is missing');
-}
-
-// Check build output directory
-console.log('\n🏗️ Checking build output:');
-const distDir = path.join(__dirname, 'dist');
-if (fs.existsSync(distDir)) {
-  console.log('✅ dist directory exists');
-  
-  // Check for key files in dist
-  const distFiles = ['index.html', 'assets'];
-  for (const file of distFiles) {
-    const filePath = path.join(distDir, file);
-    if (fs.existsSync(filePath)) {
-      console.log(`✅ dist/${file} exists`);
+    // Check rewrites configuration
+    if (vercelConfig.rewrites && vercelConfig.rewrites.length > 0) {
+      console.log(`- Rewrites: ${vercelConfig.rewrites.length} defined`);
+      
+      // Print all rewrites for debugging
+      console.log('  Rewrite definitions:');
+      vercelConfig.rewrites.forEach((rewrite, i) => {
+        console.log(`  ${i+1}. ${JSON.stringify(rewrite)}`);
+      });
     } else {
-      console.log(`❓ dist/${file} is missing (only critical after build)`);
-      if (file === 'index.html') {
-        warnings.push('dist/index.html is missing - build may be incomplete');
-      }
+      console.log('⚠️ Rewrites: None defined');
+    }
+    
+    // Check headers configuration
+    if (vercelConfig.headers && vercelConfig.headers.length > 0) {
+      console.log(`- Headers: ${vercelConfig.headers.length} defined`);
+      
+      // Check for CORS headers
+      const hasCors = vercelConfig.headers.some(header => 
+        header.headers && header.headers.some(h => 
+          h.key && h.key.toLowerCase().includes('access-control')
+        )
+      );
+      
+      console.log(`  ${hasCors ? '✅' : '⚠️'} CORS headers: ${hasCors ? 'found' : 'missing'}`);
+    } else {
+      console.log('⚠️ Headers: None defined');
+    }
+  } catch (error) {
+    console.error('❌ Error parsing vercel.json:', error.message);
+  }
+} else {
+  console.error('❌ vercel.json not found!');
+}
+
+// Check vite.config.ts
+const viteConfigPath = path.join(__dirname, 'vite.config.ts');
+if (fs.existsSync(viteConfigPath)) {
+  const viteConfig = fs.readFileSync(viteConfigPath, 'utf8');
+  
+  console.log('\n📄 Vite Configuration Checks:');
+  
+  // Check for outDir configuration
+  const hasOutDir = viteConfig.includes('outDir:') || viteConfig.includes('outDir =');
+  console.log(`${hasOutDir ? '✅' : '⚠️'} Output directory configuration: ${hasOutDir ? 'found' : 'not explicitly set'}`);
+  
+  // Check for root directory
+  const hasRoot = viteConfig.includes('root:') || viteConfig.includes('root =');
+  console.log(`${hasRoot ? '✅' : '⚠️'} Root directory configuration: ${hasRoot ? 'found' : 'not explicitly set'}`);
+  
+  // If it has a root, find what it is
+  if (hasRoot) {
+    const rootMatch = viteConfig.match(/root:\s*['"](.*?)['"]/m) || viteConfig.match(/root\s*=\s*['"](.*?)['"]/m);
+    if (rootMatch) {
+      console.log(`  - Root directory set to: ${rootMatch[1]}`);
     }
   }
   
-  // Check for API directory in dist (needed for Vercel serverless functions)
-  const distApiDir = path.join(distDir, 'api');
-  if (fs.existsSync(distApiDir)) {
-    console.log('✅ dist/api directory exists');
-  } else {
-    console.log('❓ dist/api directory is missing (needed for Vercel serverless functions)');
-    warnings.push('dist/api directory is missing - API functions may not deploy correctly');
-  }
-} else {
-  console.log('❓ dist directory does not exist (normal before build)');
-}
-
-// Summary
-console.log('\n📊 Deployment Check Summary:');
-if (issues.length === 0 && warnings.length === 0) {
-  console.log('✅ No issues detected! Your project is ready for deployment.');
-} else {
-  if (issues.length > 0) {
-    console.log(`❌ ${issues.length} critical issue(s) detected that will affect deployment:`);
-    issues.forEach((issue, i) => {
-      console.log(`  ${i + 1}. ${issue}`);
-    });
+  // Check for build configuration
+  const hasBuildConfig = viteConfig.includes('build:') || viteConfig.includes('build =');
+  console.log(`${hasBuildConfig ? '✅' : '⚠️'} Build configuration: ${hasBuildConfig ? 'found' : 'not explicitly set'}`);
+  
+  // If it has a build config, find what outDir is set to
+  if (hasBuildConfig) {
+    const outDirMatch = viteConfig.match(/outDir:\s*['"](.*?)['"]/m) || viteConfig.match(/outDir\s*=\s*['"](.*?)['"]/m);
+    if (outDirMatch) {
+      console.log(`  - Output directory set to: ${outDirMatch[1]}`);
+    }
   }
   
-  if (warnings.length > 0) {
-    console.log(`⚠️ ${warnings.length} warning(s) detected that may affect deployment:`);
-    warnings.forEach((warning, i) => {
-      console.log(`  ${i + 1}. ${warning}`);
-    });
-  }
+  // Check for alias configuration
+  const hasAlias = viteConfig.includes('alias:') || viteConfig.includes('alias =');
+  console.log(`${hasAlias ? '✅' : '⚠️'} Path aliases: ${hasAlias ? 'found' : 'not explicitly set'}`);
+} else {
+  console.error('❌ vite.config.ts not found!');
 }
 
-console.log('\n🔧 Troubleshooting Tips:');
-console.log('1. If you see issues with API requests, check CORS headers in vercel.json and API handlers');
-console.log('2. Make sure your client code uses the correct API paths that work in both dev and production');
-console.log('3. For 404 errors on routes, verify that your catch-all route is correctly configured');
-console.log('4. If only a portion of your site works, check for client-side routing issues');
+// Check package.json for build script
+const packageJsonPath = path.join(__dirname, 'package.json');
+if (fs.existsSync(packageJsonPath)) {
+  try {
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    
+    console.log('\n📄 Package.json Checks:');
+    
+    // Check for build script
+    if (packageJson.scripts && packageJson.scripts.build) {
+      console.log(`✅ Build script: "${packageJson.scripts.build}"`);
+    } else {
+      console.error('❌ Build script: missing');
+    }
+    
+    // Check for important dependencies
+    const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+    const checkDeps = ['vite', 'react', 'react-dom', 'express', '@vercel/node'];
+    
+    checkDeps.forEach(dep => {
+      console.log(`${deps[dep] ? '✅' : '❌'} ${dep}: ${deps[dep] ? deps[dep] : 'missing'}`);
+    });
+  } catch (error) {
+    console.error('❌ Error parsing package.json:', error.message);
+  }
+} else {
+  console.error('❌ package.json not found!');
+}
 
-console.log('\n🚀 Next steps:');
-console.log('1. Fix any critical issues listed above');
-console.log('2. Run "node vercel-build.js" to prepare for deployment');
-console.log('3. Deploy with Vercel');
-console.log('4. Test the deployed application thoroughly');
+// Check live deployment (if possible)
+console.log('\n🌐 Checking live deployment (this may take a moment)...');
+
+(async () => {
+  try {
+    // Check the homepage
+    const homeResult = await makeRequest('https://launch-ai-ruby.vercel.app/');
+    console.log(`Home page: Status ${homeResult.statusCode}`);
+    console.log(`Content-Type: ${homeResult.contentType}`);
+    console.log(`First 200 chars: ${homeResult.data}`);
+    
+    // Check if it returns HTML or JavaScript
+    if (homeResult.contentType && homeResult.contentType.includes('javascript')) {
+      console.log('❌ WARNING: Homepage is returning JavaScript instead of HTML!');
+      console.log('   This is likely caused by incorrect route configuration in vercel.json');
+    }
+    
+    // Check the API health endpoint
+    try {
+      const apiHealthResult = await makeRequest('https://launch-ai-ruby.vercel.app/api/health');
+      console.log(`\nAPI Health Endpoint: Status ${apiHealthResult.statusCode}`);
+      console.log(`Content-Type: ${apiHealthResult.contentType}`);
+      console.log(`Response: ${apiHealthResult.data}`);
+    } catch (err) {
+      console.log('❌ Could not reach API health endpoint:',  err.message);
+    }
+  } catch (error) {
+    console.error('❌ Error checking live deployment:', error.message);
+  }
+  
+  console.log('\n🔍 Enhanced diagnostic check complete');
+  console.log('📝 If you see any issues above, fix them and re-deploy to Vercel');
+  console.log('🚀 Suggested next steps:');
+  console.log('1. Make sure your vercel.json has correct routes and rewrites configured');
+  console.log('2. Verify that the build script in package.json is correct');
+  console.log('3. Check if the outDir in vite.config.ts matches the outputDirectory in vercel.json');
+  console.log('4. After deployment, check the deployment logs in Vercel dashboard for errors');
+})();
