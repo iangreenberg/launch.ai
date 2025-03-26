@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Launch.ai...</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <iframe id="app-frame" src="" style="width:100%;height:100%;border:none;"></iframe>
+    
+    <script>
+        // This ensures the WebView loads the site running on port 5000
+        const iframe = document.getElementById('app-frame');
+        
+        // Get the actual port URL (5000)
+        // For Replit WebView, the URL format is hostname-5000.repl.co
+        const hostname = window.location.hostname;
+        const baseUrl = hostname.substring(0, hostname.indexOf('.'));
+        const port = "5000";
+        
+        // Construct the correct URL for the iframe
+        const appUrl = `https://${baseUrl}-${port}.${hostname.substring(hostname.indexOf('.')+1)}`;
+        
+        iframe.src = appUrl;
+    </script>
+</body>
+</html>

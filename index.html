@@ -3,67 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Launch.ai - Redirecting...</title>
-    <script>
-        // This file ensures the correct page loads in the Replit WebView
-        // Wait a moment and then redirect to the correct port
-        setTimeout(function() {
-            // For Replit WebView we need to use port 5000
-            window.location.href = window.location.protocol + "//" + window.location.hostname + ":5000";
-        }, 1000);
-    </script>
+    <title>Launch.ai - AI Solutions</title>
+    <meta http-equiv="refresh" content="0;url=./app.html">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #f7f9fc 0%, #ebf1f9 100%);
+            padding: 20px;
+            background-color: #f7f9fc;
             color: #333;
+            text-align: center;
         }
-        .loader {
-            border: 5px solid #f3f3f3;
+        .container {
+            max-width: 600px;
+            padding: 40px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #ff6b35;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .loading {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 107, 53, 0.3);
             border-radius: 50%;
-            border-top: 5px solid #ff6b35;
-            width: 40px;
-            height: 40px;
-            -webkit-animation: spin 1s linear infinite;
+            border-top-color: #ff6b35;
             animation: spin 1s linear infinite;
             margin-bottom: 20px;
         }
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
+        a {
+            color: #ff6b35;
+            text-decoration: none;
+            font-weight: bold;
         }
-        p {
-            color: #666;
-            max-width: 500px;
-            text-align: center;
-            line-height: 1.6;
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="loader"></div>
-    <h1>Loading Launch.ai</h1>
-    <p>Redirecting to our AI Solutions platform. If you're not redirected automatically, please click <a href="#" id="redirect-link">here</a>.</p>
-    
-    <script>
-        // Update the redirect link with the correct URL
-        document.getElementById('redirect-link').href = window.location.protocol + "//" + window.location.hostname + ":5000";
-        
-        // Also add a click handler for the link
-        document.getElementById('redirect-link').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = window.location.protocol + "//" + window.location.hostname + ":5000";
-        });
-    </script>
+    <div class="container">
+        <div class="loading"></div>
+        <h1>Launch.ai</h1>
+        <p>Redirecting to the application...</p>
+        <p>If you are not redirected automatically, <a href="./app.html">click here</a>.</p>
+    </div>
 </body>
 </html>
