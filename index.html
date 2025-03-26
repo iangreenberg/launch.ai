@@ -1,223 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Launch.ai | Redefining Business with AI</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.ico">
-  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-  <style>
-    :root {
-      --primary: #ff6b35;
-      --primary-hover: #e55a29;
-    }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
-      color: #1f2937;
-    }
-    
-    .loader {
-      border: 4px solid #e5e7eb;
-      border-top: 4px solid var(--primary);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .content {
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
-      text-align: center;
-      max-width: 500px;
-      width: 90%;
-    }
-    
-    h1 {
-      margin-bottom: 16px;
-      color: var(--primary);
-      font-size: 2.2rem;
-    }
-    
-    p {
-      text-align: center;
-      margin: 0 0 20px 0;
-      color: #4b5563;
-      line-height: 1.5;
-    }
-    
-    .button {
-      display: inline-block;
-      background-color: var(--primary);
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-      padding: 10px 24px;
-      border-radius: 6px;
-      transition: background-color 0.2s;
-      margin-top: 10px;
-    }
-    
-    .button:hover {
-      background-color: var(--primary-hover);
-    }
-    
-    .links {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
-    
-    .text-link {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.9rem;
-    }
-    
-    .text-link:hover {
-      text-decoration: underline;
-    }
-    
-    .status {
-      margin-top: 20px;
-      font-size: 0.85rem;
-      color: #6b7280;
-    }
-    
-    .status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #10b981;
-      margin-right: 6px;
-    }
-    
-    .error-message {
-      color: #ef4444;
-      margin-top: 20px;
-      padding: 10px;
-      border-radius: 6px;
-      background-color: #fef2f2;
-      border: 1px solid #ef4444;
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch.ai - Redirecting...</title>
+    <script>
+        // This file ensures the correct page loads in the Replit WebView
+        // Wait a moment and then redirect to the correct port
+        setTimeout(function() {
+            // For Replit WebView we need to use port 5000
+            window.location.href = window.location.protocol + "//" + window.location.hostname + ":5000";
+        }, 1000);
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f7f9fc 0%, #ebf1f9 100%);
+            color: #333;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #ff6b35;
+            width: 40px;
+            height: 40px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            max-width: 500px;
+            text-align: center;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body>
-  <div class="content">
-    <div class="loader" id="loader"></div>
-    <h1>Launch.ai</h1>
-    <p>Welcome to Launch.ai - the intelligent AI solutions platform for modern businesses.</p>
-    <p>We're preparing your experience...</p>
+    <div class="loader"></div>
+    <h1>Loading Launch.ai</h1>
+    <p>Redirecting to our AI Solutions platform. If you're not redirected automatically, please click <a href="#" id="redirect-link">here</a>.</p>
     
-    <a href="/" class="button" id="enter-button" style="display: none;">Enter Launch.ai</a>
-    
-    <div class="links">
-      <a href="/vercel.html" class="text-link">Check Deployment Status</a>
-      <a href="/" class="text-link">Refresh Page</a>
-    </div>
-    
-    <div class="status">
-      <span class="status-dot"></span>
-      <span id="status-message">Loading application...</span>
-    </div>
-    
-    <div id="error-message" class="error-message"></div>
-  </div>
-  
-  <script>
-    // Main function to handle application initialization
-    function initializeApp() {
-      const enterButton = document.getElementById('enter-button');
-      const loader = document.getElementById('loader');
-      const statusMessage = document.getElementById('status-message');
-      const errorMessage = document.getElementById('error-message');
-      
-      // Check if we're in a Vercel environment
-      const isVercelEnvironment = window.location.hostname.includes('vercel.app') || 
-                                 window.location.hostname === 'launch.ai' || 
-                                 window.location.hostname.includes('launchai');
-      
-      // Check API status
-      checkApiStatus()
-        .then(isApiWorking => {
-          if (isApiWorking) {
-            // API is working, proceed normally
-            loader.style.display = 'none';
-            enterButton.style.display = 'inline-block';
-            statusMessage.textContent = 'Ready to launch!';
-            
-            // Auto-redirect in production after a short delay
-            if (isVercelEnvironment) {
-              setTimeout(() => {
-                window.location.href = '/';
-              }, 1000);
-            }
-          } else {
-            // API is not working
-            loader.style.display = 'none';
-            errorMessage.style.display = 'block';
-            errorMessage.textContent = 'Unable to connect to Launch.ai API. Please try again later.';
-            enterButton.style.display = 'inline-block';
-            statusMessage.textContent = 'API connection failed';
-          }
+    <script>
+        // Update the redirect link with the correct URL
+        document.getElementById('redirect-link').href = window.location.protocol + "//" + window.location.hostname + ":5000";
+        
+        // Also add a click handler for the link
+        document.getElementById('redirect-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = window.location.protocol + "//" + window.location.hostname + ":5000";
         });
-    }
-    
-    // Function to check API status
-    async function checkApiStatus() {
-      try {
-        const cacheBuster = new Date().getTime();
-        const response = await fetch(`/api?_=${cacheBuster}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          console.error('API Status Error:', response.status);
-          return false;
-        }
-        
-        const data = await response.json();
-        console.log('API Status:', data);
-        
-        return data && data.success === true;
-      } catch (error) {
-        console.error('API Connection Error:', error);
-        return false;
-      }
-    }
-    
-    // Initialize the application when the DOM is ready
-    document.addEventListener('DOMContentLoaded', initializeApp);
-  </script>
+    </script>
 </body>
 </html>
