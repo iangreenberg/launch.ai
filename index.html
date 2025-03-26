@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Launch.ai | Redefining Business with AI</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.ico">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <style>
     :root {
       --primary: #ff6b35;
@@ -115,6 +116,16 @@
       background-color: #10b981;
       margin-right: 6px;
     }
+    
+    .error-message {
+      color: #ef4444;
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 6px;
+      background-color: #fef2f2;
+      border: 1px solid #ef4444;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -124,7 +135,7 @@
     <p>Welcome to Launch.ai - the intelligent AI solutions platform for modern businesses.</p>
     <p>We're preparing your experience...</p>
     
-    <a href="/index.html" class="button" id="enter-button" style="display: none;">Enter Launch.ai</a>
+    <a href="/" class="button" id="enter-button" style="display: none;">Enter Launch.ai</a>
     
     <div class="links">
       <a href="/vercel.html" class="text-link">Check Deployment Status</a>
@@ -135,49 +146,78 @@
       <span class="status-dot"></span>
       <span id="status-message">Loading application...</span>
     </div>
+    
+    <div id="error-message" class="error-message"></div>
   </div>
   
   <script>
-    // Check for Vercel environment and redirect accordingly
-    document.addEventListener('DOMContentLoaded', function() {
+    // Main function to handle application initialization
+    function initializeApp() {
       const enterButton = document.getElementById('enter-button');
       const loader = document.getElementById('loader');
       const statusMessage = document.getElementById('status-message');
+      const errorMessage = document.getElementById('error-message');
       
-      // In production/Vercel, redirect to SPA immediately
-      if (window.location.hostname.includes('vercel.app') || 
-          window.location.hostname === 'launch.ai' || 
-          window.location.hostname.includes('launchai')) {
-        
-        // Redirect after a short delay to ensure page is loaded
-        setTimeout(function() {
-          window.location.href = '/index.html';
-        }, 1500);
-        
-      } else {
-        // In development, show enter button after a short delay
-        setTimeout(function() {
-          loader.style.display = 'none';
-          enterButton.style.display = 'inline-block';
-          statusMessage.textContent = 'Ready to launch!';
-        }, 2000);
-      }
+      // Check if we're in a Vercel environment
+      const isVercelEnvironment = window.location.hostname.includes('vercel.app') || 
+                                 window.location.hostname === 'launch.ai' || 
+                                 window.location.hostname.includes('launchai');
       
-      // Handle API status check to verify deployment
-      fetch('/api?_=' + new Date().getTime())
-        .then(response => {
-          if (!response.ok) throw new Error('API not available');
-          return response.json();
-        })
-        .then(data => {
-          console.log('API Status:', data);
-          statusMessage.textContent = 'Connected to Launch.ai API v' + (data.version || '1.0.0');
-        })
-        .catch(err => {
-          console.error('API Status Check Error:', err);
-          // Don't change status message on error to avoid confusion
+      // Check API status
+      checkApiStatus()
+        .then(isApiWorking => {
+          if (isApiWorking) {
+            // API is working, proceed normally
+            loader.style.display = 'none';
+            enterButton.style.display = 'inline-block';
+            statusMessage.textContent = 'Ready to launch!';
+            
+            // Auto-redirect in production after a short delay
+            if (isVercelEnvironment) {
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 1000);
+            }
+          } else {
+            // API is not working
+            loader.style.display = 'none';
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = 'Unable to connect to Launch.ai API. Please try again later.';
+            enterButton.style.display = 'inline-block';
+            statusMessage.textContent = 'API connection failed';
+          }
         });
-    });
+    }
+    
+    // Function to check API status
+    async function checkApiStatus() {
+      try {
+        const cacheBuster = new Date().getTime();
+        const response = await fetch(`/api?_=${cacheBuster}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          console.error('API Status Error:', response.status);
+          return false;
+        }
+        
+        const data = await response.json();
+        console.log('API Status:', data);
+        
+        return data && data.success === true;
+      } catch (error) {
+        console.error('API Connection Error:', error);
+        return false;
+      }
+    }
+    
+    // Initialize the application when the DOM is ready
+    document.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
 </html>
