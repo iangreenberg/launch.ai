@@ -17,6 +17,8 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+// Import the apiRequest function directly
+import { apiRequest } from "@/lib/queryClient";
 
 const formSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -48,44 +50,26 @@ export default function ContactSection() {
     try {
       console.log("Form submitted:", data);
       
-      // Use the Vercel API endpoint for both development and production
-      const apiEndpoint = '/api/contact';
+      // Use the apiRequest function for the contact endpoint
+      const response = await apiRequest('POST', '/api/contact', data);
       
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+      toast({
+        title: "Request submitted",
+        description: "We'll get back to you soon!",
       });
       
-      if (response.ok) {
-        toast({
-          title: "Request submitted",
-          description: "We'll get back to you soon!",
-        });
-        
-        form.reset();
-      } else {
-        let errorMessage = "There was a problem submitting your request. Please try again.";
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch (e) {
-          console.error("Failed to parse error response:", e);
-        }
-        
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
+      form.reset();
+    } catch (error: any) {
+      console.error("API error:", error);
+      
+      let errorMessage = "There was a problem submitting your request. Please try again.";
+      if (error.message) {
+        errorMessage = error.message;
       }
-    } catch (error) {
-      console.error("Error submitting form:", error);
+      
       toast({
-        title: "Submission error",
-        description: "There was a problem connecting to our servers. Please try again later.",
+        title: "Error",
+        description: errorMessage,
         variant: "destructive",
       });
     }
